@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  mongodb-myapp:
+    image: mongo:latest
+    container_name: mongodb-myapp
+    volumes:
+      - mongodb-data:/data/db
+    restart: always
+    networks:
+      - nodeapp-network
+  express-mongo-boilerplate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production 
+    volumes:
+      - ./src:/usr/src/app/src
+      - ./nodemon.json:/usr/src/app/nodemon.json
+    container_name: express-mongo-boilerplate
+    expose:
+      - '8000'
+    ports:
+      - '8000:8000'
+    env_file:
+      - .env.production
+    environment:
+      - NODE_ENV=production
+      - PORT=${PORT}
+    command: npm run start:prod
+    networks:
+      - nodeapp-network
+    restart: always
+    depends_on:
+      - mongodb-myapp
+
+networks:
+  nodeapp-network:
+    driver: bridge
